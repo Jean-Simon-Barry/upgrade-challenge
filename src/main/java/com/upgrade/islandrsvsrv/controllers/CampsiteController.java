@@ -1,5 +1,7 @@
-package com.upgrade.islandrsvsrv.controller;
+package com.upgrade.islandrsvsrv.controllers;
 
+import com.upgrade.islandrsvsrv.services.ReservationService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +16,8 @@ import static java.time.temporal.ChronoUnit.DAYS;
 @RequestMapping("/campsite")
 public class CampsiteController {
 
+	@Autowired
+	private ReservationService reservationService;
 
 	@GetMapping("/availabilities")
 	public Flux<LocalDate> getAvailabilities(
@@ -27,7 +31,7 @@ public class CampsiteController {
 			endDate = LocalDate.now().plus(30, DAYS);
 		}
 
-		return Flux.empty();
+		return reservationService.getAvailabilities(startDate, endDate);
 	}
 
 }
