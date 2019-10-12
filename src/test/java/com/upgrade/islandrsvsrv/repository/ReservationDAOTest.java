@@ -1,5 +1,6 @@
 package com.upgrade.islandrsvsrv.repository;
 
+import com.upgrade.islandrsvsrv.domain.DateInterval;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,11 +41,11 @@ public class ReservationDAOTest {
 		// given
 		LocalDate start = now();
 		LocalDate end = now().plus(10, DAYS);
-		Period expected = Period.between(start, end.minus(2, DAYS));
+		DateInterval expected = new DateInterval(start, end.minus(2, DAYS));
 		when(jdbcTemplate.query(any(String.class), any(RowMapper.class), any(), any())).thenReturn(List.of(expected));
 
 		// when
-		Flux<Period> availabilities = reservationDAO.getAvailabilities(start, end);
+		Flux<DateInterval> availabilities = reservationDAO.getAvailabilities(start, end);
 
 		// then
 		StepVerifier.create(availabilities).expectNext(expected).verifyComplete();

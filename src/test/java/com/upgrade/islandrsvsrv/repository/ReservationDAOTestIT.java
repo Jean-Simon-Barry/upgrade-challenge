@@ -1,5 +1,6 @@
 package com.upgrade.islandrsvsrv.repository;
 
+import com.upgrade.islandrsvsrv.domain.DateInterval;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,14 +58,18 @@ public class ReservationDAOTestIT {
 	public void testReturnsAvailabilityPeriods() {
 
 		// when
-		Flux<Period> availabilities = reservationDAO.getAvailabilities(START_DATE_WINDOW, END_DATE_WINDOW);
+		Flux<DateInterval> availabilities = reservationDAO.getAvailabilities(START_DATE_WINDOW, END_DATE_WINDOW);
 
 		// then
+		DateInterval expectedAvailableInterval1 = new DateInterval(START_DATE_WINDOW,
+																  RESERVATION_START.minus(1, DAYS));
+		DateInterval expectedAvailableInterval2 = new DateInterval(RESERVATION_END, END_DATE_WINDOW);
+
 		StepVerifier.create(availabilities)
 				.recordWith(ArrayList::new)
 				.expectNextCount(2)
-				.consumeRecordedWith(periods -> assertThat(periods, hasItems(Period.between(START_DATE_WINDOW, RESERVATION_START.minus(1, DAYS)),
-																			 Period.between(RESERVATION_END, END_DATE_WINDOW))))
+				.consumeRecordedWith(periods -> assertThat(periods, hasItems(expectedAvailableInterval1,
+																			 expectedAvailableInterval2)))
 				.verifyComplete();
 	}
 

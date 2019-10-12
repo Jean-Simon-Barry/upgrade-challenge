@@ -1,5 +1,6 @@
 package com.upgrade.islandrsvsrv.repository;
 
+import com.upgrade.islandrsvsrv.domain.DateInterval;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import reactor.core.publisher.Flux;
@@ -23,14 +24,14 @@ public class ReservationDAO {
 
 	private final JdbcTemplate jdbc;
 
-	public Flux<Period> getAvailabilities(LocalDate start, LocalDate end) {
+	public Flux<DateInterval> getAvailabilities(LocalDate start, LocalDate end) {
 		return Flux.fromIterable(jdbc.query(GET_AVAILABILITIES_QUERY,
 											(rs, num) -> availabilitiesFromQuerySet(rs),
 											Date.valueOf(start),
 											Date.valueOf(end)));
 	}
 
-	private Period availabilitiesFromQuerySet(ResultSet rs) throws SQLException {
+	private DateInterval availabilitiesFromQuerySet(ResultSet rs) throws SQLException {
 		String dateRangeString = rs.getString(1);
 		return parsePeriodFromDateRangeString(dateRangeString);
 	}
@@ -41,7 +42,7 @@ public class ReservationDAO {
 	 * @param dateRange the daterange is of this format : '[yyyy-MM-dd,yyyy-MM-dd)'
 	 * @return a Period parsed from daterange passed as a string
 	 */
-	private Period parsePeriodFromDateRangeString(String dateRange) {
+	private DateInterval parsePeriodFromDateRangeString(String dateRange) {
 		String[] stringDates = dateRange
 				.replace("[", "")
 				.replace(")", "")
@@ -50,7 +51,7 @@ public class ReservationDAO {
 		LocalDate start = LocalDate.parse(stringDates[0], DATE_TIME_FORMATTER);
 		//remove 1 day from the end since we have exclusive end dates
 		LocalDate end = LocalDate.parse(stringDates[1], DATE_TIME_FORMATTER).minus(1, DAYS);
-		return Period.between(start, end);
+		return new DateInterval(start, end);
 	}
 
 }
