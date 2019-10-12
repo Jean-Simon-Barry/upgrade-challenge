@@ -39,7 +39,7 @@ public class ReservationDAOTestIT {
 	private JdbcTemplate jdbcTemplate;
 
 	@ClassRule
-	public static PostgreSQLContainer postgres = new PostgreSQLContainer<>("postgres:11")
+	public static PostgreSQLContainer postgres = new PostgreSQLContainer<>("postgres:latest")
 			.withDatabaseName("island_resort_test")
 			.withUsername("upgrade")
 			.withPassword("upgrade");

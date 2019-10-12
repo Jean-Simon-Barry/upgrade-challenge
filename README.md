@@ -20,3 +20,6 @@ and finally
 ```docker-compose up```
 
 All db migrations will run and the web server should be up and running at `localhost:8080` ! Happy vacation!
+
+To run the integration tests, make sure you have docker up and running on your env and simply do a
+```mvn install```
