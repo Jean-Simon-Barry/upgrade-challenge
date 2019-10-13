@@ -3,15 +3,18 @@ package com.upgrade.islandrsvsrv.repository;
 import com.upgrade.islandrsvsrv.domain.DateInterval;
 import com.upgrade.islandrsvsrv.domain.Reservation;
 import org.junit.*;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.server.ResponseStatusException;
 import org.testcontainers.containers.PostgreSQLContainer;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
@@ -35,6 +38,9 @@ public class ReservationDAOTestIT {
 	private static final LocalDate NOW = LocalDate.now();
 	private static final LocalDate START_DATE_WINDOW = NOW;
 	private static final LocalDate END_DATE_WINDOW = NOW.plus(10, DAYS);
+
+	@Rule
+	public ExpectedException expectedEx = ExpectedException.none();
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -93,6 +99,36 @@ public class ReservationDAOTestIT {
 
 		// then
 		assertTrue(reservationId.isPresent());
+	}
+
+	@Test
+	public void testInsertReservationThrowsExceptionIfItOverlapsWithExistingReservations() {
+		//given
+		DateInterval dateInterval = new DateInterval(LocalDate.now().plus(6, MONTHS),
+													 LocalDate.now().plus(7, MONTHS));
+		Reservation reservation = Reservation.builder()
+				.userEmail("email")
+				.userName("userName")
+				.dateInterval(dateInterval)
+				.build();
+		expectedEx.expect(DataIntegrityViolationException.class);
+		expectedEx.expectMessage("PreparedStatementCallback; ERROR: conflicting key value violates exclusion " +
+										 "constraint \"camping_reservation_reservation_dates_excl\"\n" +
+										 "  Detail: Key (reservation_dates)=(" + dateInterval + ") conflicts with " +
+										 "existing key (reservation_dates)=(" + dateInterval + ").; " +
+										 "nested exception is org.postgresql.util.PSQLException: ERROR: " +
+										 "conflicting key value violates exclusion constraint " +
+										 "\"camping_reservation_reservation_dates_excl\"\n" +
+										 "  Detail: Key (reservation_dates)=(" + dateInterval + ") " +
+										 "conflicts with existing key (reservation_dates)=(" + dateInterval + ").");
+
+		// when
+		reservationDAO.insertReservation(reservation);
+		reservationDAO.insertReservation(reservation);
+
+		//then
+		//exception is asserted above
+
 	}
 
 	static class Initializer
