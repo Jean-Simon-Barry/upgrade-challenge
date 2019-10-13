@@ -45,8 +45,8 @@ public class CampsiteControllerTest {
     @Test
     public void testReturnsAvailabilitiesForCampsite() {
         // given
-        LocalDate requestStartDate = LocalDate.parse("2019-10-13", dateFormatter);
-		LocalDate requestEndDate = LocalDate.parse("2019-10-16", dateFormatter);
+        LocalDate requestStartDate = now().plus(1, DAYS);
+		LocalDate requestEndDate = now().plus(3, DAYS);
 
 		LocalDate availabilityOne = LocalDate.parse("2019-01-01", dateFormatter);
 		LocalDate availabilityTwo = LocalDate.parse("2019-01-02", dateFormatter);
