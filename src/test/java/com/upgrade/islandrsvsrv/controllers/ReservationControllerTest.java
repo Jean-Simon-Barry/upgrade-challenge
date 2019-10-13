@@ -146,4 +146,24 @@ public class ReservationControllerTest {
 
 		verify(reservationService, never()).insertReservation(any());
 	}
+
+	@Test
+	public void testThrowsExceptionIfExceedThreeDays() {
+		// given
+		LocalDate startDate = now().plus(1, DAYS);
+		LocalDate endDate = now().plus(5, DAYS);
+		ReservationRequest reservation = ReservationRequest.builder()
+				.userEmail("email")
+				.userName("userName")
+				.start(startDate)
+				.end(endDate)
+				.build();
+		expectedEx.expect(ResponseStatusException.class);
+		expectedEx.expectMessage("Reservation can only be for 3 days at a time.");
+
+		// when
+		reservationController.newReservation(reservation);
+
+		verify(reservationService, never()).insertReservation(any());
+	}
 }

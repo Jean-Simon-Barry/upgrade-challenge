@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Period;
+
 import static com.upgrade.islandrsvsrv.validation.ReservationDateValidation.validateDates;
 
 @RestController
@@ -21,6 +23,7 @@ public class ReservationController {
 	public Long newReservation(@RequestBody ReservationRequest reservationRequest) {
 
 		validateDates(reservationRequest.getStart(), reservationRequest.getEnd());
+		validateRequestDoesNotExceedThreeDays(reservationRequest);
 		try {
 			return reservationService.insertReservation(reservationRequest);
 		} catch (DataIntegrityViolationException e) {
@@ -28,6 +31,12 @@ public class ReservationController {
 					"somewhere between " + reservationRequest.getStart() + " and " + reservationRequest.getEnd() +
 					". Please try another time slot.");
 
+		}
+	}
+
+	private void validateRequestDoesNotExceedThreeDays(ReservationRequest reservationRequest) {
+		if (Period.between(reservationRequest.getStart(), reservationRequest.getEnd()).getDays() > 3) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Reservation can only be for 3 days at a time.");
 		}
 	}
 }
