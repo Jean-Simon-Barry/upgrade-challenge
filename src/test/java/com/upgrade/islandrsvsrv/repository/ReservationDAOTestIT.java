@@ -15,19 +15,17 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.web.server.ResponseStatusException;
 import org.testcontainers.containers.PostgreSQLContainer;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Optional;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.MONTHS;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItems;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
@@ -82,8 +80,8 @@ public class ReservationDAOTestIT {
 		StepVerifier.create(availabilities)
 				.recordWith(ArrayList::new)
 				.expectNextCount(2)
-				.consumeRecordedWith(periods -> assertThat(periods, hasItems(expectedAvailableInterval1,
-																			 expectedAvailableInterval2)))
+				.consumeRecordedWith(periods -> assertThat(periods).containsExactly(expectedAvailableInterval1,
+																					expectedAvailableInterval2))
 				.verifyComplete();
 	}
 
@@ -132,6 +130,32 @@ public class ReservationDAOTestIT {
 		//then
 		//exception is asserted above
 
+	}
+
+	@Test
+	public void testUpdateReservation() {
+		//given
+		ReservationRequest reservation = ReservationRequest.builder()
+				.userEmail("email")
+				.userName("userName")
+				.start(LocalDate.now().plus(6, MONTHS))
+				.end(LocalDate.now().plus(7, MONTHS))
+				.build();
+		Long reservationId = reservationDAO.insertReservation(reservation);
+
+		//when
+		LocalDate expectedStart = LocalDate.now().plus(666, DAYS);
+		LocalDate expectedEnd = LocalDate.now().plus(667, DAYS);
+		reservationDAO.updateReservation(reservationId,
+										 expectedStart,
+										 expectedEnd);
+
+		//then
+		Reservation actualReservation = reservationDAO.getReservation(reservationId);
+
+		assertThat(actualReservation.getDateInterval().getStart()).isEqualTo(expectedStart);
+		//exclusives dates when reserving since guests must checkout at midnight so substract 1 day from "expected"
+		assertThat(actualReservation.getDateInterval().getEnd()).isEqualTo(expectedEnd.minus(1, DAYS));
 	}
 
 	static class Initializer

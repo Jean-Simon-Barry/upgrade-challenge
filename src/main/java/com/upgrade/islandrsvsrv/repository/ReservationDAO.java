@@ -30,9 +30,19 @@ import static java.util.stream.Collectors.toList;
 public class ReservationDAO {
 
 	private static final String EMPTY_SEARCH_RESULT_STRING = "empty";
+
 	private static final String GET_AVAILABILITIES_QUERY = "SELECT get_available_periods(daterange(?, ?, '[]'))";
+
 	private static final String INSERT_RESERVATION = "INSERT INTO camping_reservation(user_name, " +
 			"user_email, reservation_dates) VALUES (?, ?, daterange(?, ?));";
+
+	private static final String UPDATE_RESERVATION = "UPDATE camping_reservation SET reservation_dates = daterange(?, ?)" +
+			" WHERE id = ?;";
+
+	private static final String GET_RESERVATION = "SELECT user_name, user_email, reservation_dates" +
+			" FROM camping_reservation WHERE id = ?";
+
+
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 	private final JdbcTemplate jdbc;
@@ -62,6 +72,30 @@ public class ReservationDAO {
 		return requireNonNull(keyHolder.getKey()).longValue();
 	}
 
+	public void updateReservation(Long reservationId, LocalDate newStart, LocalDate newEnd) {
+		jdbc.update(connection -> {
+			PreparedStatement ps = connection.prepareStatement(UPDATE_RESERVATION, new String[]{"id"});
+			ps.setDate(1, Date.valueOf(newStart));
+			ps.setDate(2, Date.valueOf(newEnd));
+			ps.setLong(3, reservationId);
+			return ps;
+		});
+	}
+
+	public Reservation getReservation(Long reservationId) {
+		return jdbc.queryForObject(GET_RESERVATION,
+								   (rs, num) -> mapReservationFromResultSet(rs),
+								   reservationId);
+	}
+
+	private Reservation mapReservationFromResultSet(ResultSet rs) throws SQLException {
+		return Reservation.builder()
+				.userName(rs.getString(1))
+				.userEmail(rs.getString(2))
+				.dateInterval(dateIntervalFromDateRange(rs.getString(3)))
+				.build();
+	}
+
 	private Optional<DateInterval> availabilitiesFromQuerySet(ResultSet rs) throws SQLException {
 		String dateRangeString = rs.getString(1);
 		return parsePeriodFromDateRangeString(dateRangeString);
@@ -79,6 +113,10 @@ public class ReservationDAO {
 		if (dateRange.equals(EMPTY_SEARCH_RESULT_STRING)) {
 			return Optional.empty();
 		}
+		return Optional.of(dateIntervalFromDateRange(dateRange));
+	}
+
+	private DateInterval dateIntervalFromDateRange(String dateRange) {
 		String[] stringDates = dateRange
 				.replace("[", "")
 				.replace(")", "")
@@ -87,7 +125,6 @@ public class ReservationDAO {
 		LocalDate start = LocalDate.parse(stringDates[0], DATE_TIME_FORMATTER);
 		//remove 1 day from the end since we have exclusive end dates
 		LocalDate end = LocalDate.parse(stringDates[1], DATE_TIME_FORMATTER).minus(1, DAYS);
-		return Optional.of(new DateInterval(start, end));
+		return new DateInterval(start, end);
 	}
-
 }
