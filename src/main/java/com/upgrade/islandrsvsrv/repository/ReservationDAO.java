@@ -3,6 +3,7 @@ package com.upgrade.islandrsvsrv.repository;
 import com.upgrade.islandrsvsrv.domain.DateInterval;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import java.sql.Array;
@@ -17,6 +18,7 @@ import java.util.Arrays;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 @RequiredArgsConstructor
+@Service
 public class ReservationDAO {
 
 	private static final String GET_AVAILABILITIES_QUERY = "SELECT get_available_periods(daterange(?, ?, '[]'))";
