@@ -15,14 +15,14 @@ import reactor.core.publisher.Flux;
 import java.time.LocalDate;
 
 import static java.time.LocalDate.now;
-import static java.time.temporal.ChronoUnit.DAYS;
+import static java.time.temporal.ChronoUnit.MONTHS;
 
 @RestController
 @RequestMapping("/campsite")
 @RequiredArgsConstructor
 public class CampsiteController {
 
-	private static final int DEFAULT_AVAILABILITY_WINDOW_DAYS = 30;
+	private static final int DEFAULT_AVAILABILITY_WINDOW_MONTHS = 1;
 
 	private final ReservationService reservationService;
 
@@ -35,7 +35,7 @@ public class CampsiteController {
 
 		if (startDate == null || endDate == null) {
 			startDate = now();
-			endDate = now().plus(DEFAULT_AVAILABILITY_WINDOW_DAYS, DAYS);
+			endDate = now().plus(DEFAULT_AVAILABILITY_WINDOW_MONTHS, MONTHS);
 		}
 		validateDates(startDate, endDate);
 
