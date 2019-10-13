@@ -2,6 +2,7 @@ package com.upgrade.islandrsvsrv.repository;
 
 import com.upgrade.islandrsvsrv.domain.DateInterval;
 import com.upgrade.islandrsvsrv.domain.Reservation;
+import com.upgrade.islandrsvsrv.domain.api.ReservationRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -36,14 +37,14 @@ public class ReservationDAO {
 											Date.valueOf(end)));
 	}
 
-	public Optional<Long> insertReservation(Reservation reservation) {
+	public Optional<Long> insertReservation(ReservationRequest reservation) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		jdbc.update(connection -> {
 						PreparedStatement ps = connection.prepareStatement(INSERT_RESERVATION, new String[]{"id"});
 						ps.setString(1, reservation.getUserName());
 						ps.setString(2, reservation.getUserEmail());
-						ps.setDate(3, Date.valueOf(reservation.getDateInterval().getStart()));
-						ps.setDate(4, Date.valueOf(reservation.getDateInterval().getEnd()));
+						ps.setDate(3, Date.valueOf(reservation.getStart()));
+						ps.setDate(4, Date.valueOf(reservation.getEnd()));
 						return ps;
 					},
 					keyHolder);

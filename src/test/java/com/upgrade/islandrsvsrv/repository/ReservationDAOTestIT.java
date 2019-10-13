@@ -2,6 +2,7 @@ package com.upgrade.islandrsvsrv.repository;
 
 import com.upgrade.islandrsvsrv.domain.DateInterval;
 import com.upgrade.islandrsvsrv.domain.Reservation;
+import com.upgrade.islandrsvsrv.domain.api.ReservationRequest;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
@@ -62,10 +63,11 @@ public class ReservationDAOTestIT {
 		//given
 		LocalDate reservationStart = START_DATE_WINDOW.plus(3, DAYS);
 		LocalDate reservationEnd = reservationStart.plus(3, DAYS);
-		Reservation reservation = Reservation.builder()
+		ReservationRequest reservation = ReservationRequest.builder()
 				.userEmail("emailhere")
 				.userName("fullnamehere")
-				.dateInterval(new DateInterval(reservationStart, reservationEnd))
+				.start(reservationStart)
+				.end(reservationEnd)
 				.build();
 		reservationDAO.insertReservation(reservation);
 
@@ -88,11 +90,11 @@ public class ReservationDAOTestIT {
 	@Test
 	public void testInsertReservationReturnsId() {
 		//given
-		Reservation reservation = Reservation.builder()
+		ReservationRequest reservation = ReservationRequest.builder()
 				.userEmail("email")
 				.userName("userName")
-				.dateInterval(new DateInterval(LocalDate.now().plus(3, MONTHS),
-											   LocalDate.now().plus(4, MONTHS)))
+				.start(LocalDate.now().plus(3, MONTHS))
+				.end(LocalDate.now().plus(4, MONTHS))
 				.build();
 		// when
 		Optional<Long> reservationId = reservationDAO.insertReservation(reservation);
@@ -106,10 +108,11 @@ public class ReservationDAOTestIT {
 		//given
 		DateInterval dateInterval = new DateInterval(LocalDate.now().plus(6, MONTHS),
 													 LocalDate.now().plus(7, MONTHS));
-		Reservation reservation = Reservation.builder()
+		ReservationRequest reservation = ReservationRequest.builder()
 				.userEmail("email")
 				.userName("userName")
-				.dateInterval(dateInterval)
+				.start(LocalDate.now().plus(6, MONTHS))
+				.end(LocalDate.now().plus(7, MONTHS))
 				.build();
 		expectedEx.expect(DataIntegrityViolationException.class);
 		expectedEx.expectMessage("PreparedStatementCallback; ERROR: conflicting key value violates exclusion " +

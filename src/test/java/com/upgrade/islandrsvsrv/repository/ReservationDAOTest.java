@@ -2,6 +2,7 @@ package com.upgrade.islandrsvsrv.repository;
 
 import com.upgrade.islandrsvsrv.domain.DateInterval;
 import com.upgrade.islandrsvsrv.domain.Reservation;
+import com.upgrade.islandrsvsrv.domain.api.ReservationRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,10 +59,11 @@ public class ReservationDAOTest {
 		// given
 		LocalDate start = now();
 		LocalDate end = now().plus(10, DAYS);
-		Reservation reservation = Reservation.builder()
+		ReservationRequest reservation = ReservationRequest.builder()
 				.userEmail("email")
 				.userName("userName")
-				.dateInterval(new DateInterval(start, end))
+				.start(start)
+				.end(end)
 				.build();
 		when(jdbcTemplate.update(any(), any(KeyHolder.class))).thenReturn(1);
 
