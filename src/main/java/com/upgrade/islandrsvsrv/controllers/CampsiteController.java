@@ -14,6 +14,7 @@ import reactor.core.publisher.Flux;
 
 import java.time.LocalDate;
 
+import static com.upgrade.islandrsvsrv.validation.ReservationDateValidation.validateDates;
 import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.MONTHS;
@@ -42,16 +43,6 @@ public class CampsiteController {
 		validateDates(startDate, endDate);
 
 		return reservationService.getAvailabilities(startDate, endDate);
-	}
-
-	private void validateDates(LocalDate start, LocalDate end) throws ResponseStatusException {
-		if (end.isBefore(start)) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The end date cannot be before the start date.");
-		} else if (end.isBefore(now())) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The end date cannot be in the past.");
-		} else if (!start.isAfter(now())) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The start date must be in the future.");
-		}
 	}
 
 }

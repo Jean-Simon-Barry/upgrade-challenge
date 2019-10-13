@@ -13,14 +13,19 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
+import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationControllerTest {
+
+	private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
 
 	@Mock
 	private ReservationService reservationService;
@@ -78,5 +83,67 @@ public class ReservationControllerTest {
 		//then
 		//exception is asserted above
 
+	}
+
+	@Test
+	public void testThrowsExceptionWhenEndDateIsBeforeStartDate() {
+		// given
+		LocalDate startDate = LocalDate.parse("2019-01-02", dateFormatter);
+		LocalDate endDate = LocalDate.parse("2019-01-01", dateFormatter);
+
+		ReservationRequest reservation = ReservationRequest.builder()
+				.userEmail("email")
+				.userName("userName")
+				.start(startDate)
+				.end(endDate)
+				.build();
+
+		expectedEx.expect(ResponseStatusException.class);
+		expectedEx.expectMessage("The end date cannot be before the start date.");
+
+		// when
+		reservationController.newReservation(reservation);
+
+		verify(reservationService, never()).insertReservation(any());
+	}
+
+	@Test
+	public void testThrowsExceptionWhenEndDateIsBeforeNow() {
+		// given
+		LocalDate startDate = now().minus(2, DAYS);
+		LocalDate endDate = now().minus(1, DAYS);
+		ReservationRequest reservation = ReservationRequest.builder()
+				.userEmail("email")
+				.userName("userName")
+				.start(startDate)
+				.end(endDate)
+				.build();
+		expectedEx.expect(ResponseStatusException.class);
+		expectedEx.expectMessage("The end date cannot be in the past.");
+
+		// when
+		reservationController.newReservation(reservation);
+
+		verify(reservationService, never()).insertReservation(any());
+	}
+
+	@Test
+	public void testThrowsExceptionWhenStartDateIsNotInFuture() {
+		// given
+		LocalDate startDate = now().minus(2, DAYS);
+		LocalDate endDate = now().plus(1, DAYS);
+		ReservationRequest reservation = ReservationRequest.builder()
+				.userEmail("email")
+				.userName("userName")
+				.start(startDate)
+				.end(endDate)
+				.build();
+		expectedEx.expect(ResponseStatusException.class);
+		expectedEx.expectMessage("The start date must be in the future.");
+
+		// when
+		reservationController.newReservation(reservation);
+
+		verify(reservationService, never()).insertReservation(any());
 	}
 }
