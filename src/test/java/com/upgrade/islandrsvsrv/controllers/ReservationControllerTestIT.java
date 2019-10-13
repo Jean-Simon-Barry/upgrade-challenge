@@ -2,7 +2,10 @@ package com.upgrade.islandrsvsrv.controllers;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.upgrade.islandrsvsrv.domain.Reservation;
+import com.upgrade.islandrsvsrv.domain.api.ReservationModification;
 import com.upgrade.islandrsvsrv.domain.api.ReservationRequest;
+import com.upgrade.islandrsvsrv.repository.ReservationDAO;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,6 +41,9 @@ public class ReservationControllerTestIT {
 
 	@Autowired
 	private WebTestClient webTestClient;
+
+	@Autowired
+	private ReservationDAO reservationDAO;
 
 	@Autowired
 	private ReservationController reservationController;
@@ -116,10 +122,43 @@ public class ReservationControllerTestIT {
 				.expectBody()
 				.jsonPath("$.message", "" +
 						"Sorry it looks like the island is booked somewhere between " +
-						startDate  + "and " +
+						startDate + "and " +
 						endDate + "." +
 						"Please try another time slot.");
 
+	}
+
+	@Test
+	public void modifiesReservation() {
+		//given
+		ReservationRequest build = ReservationRequest.builder()
+				.start(now().plus(10, DAYS))
+				.end(now().plus(15, DAYS))
+				.userEmail("email")
+				.userName("username")
+				.build();
+		Long reservationId = reservationDAO.insertReservation(build);
+
+		LocalDate expectedStart = now().plus(19, DAYS);
+		LocalDate expectedEnd = now().plus(21, DAYS);
+		ReservationModification modification = ReservationModification.builder()
+				.start(expectedStart)
+				.end(expectedEnd)
+				.reservationId(reservationId)
+				.build();
+
+		//when
+		webTestClient.put()
+				.uri("/reservation")
+				.accept(MediaType.APPLICATION_JSON_UTF8)
+				.body(Mono.just(modification), ReservationModification.class)
+				.exchange()
+				.expectStatus().isOk();
+
+		//then
+		Reservation actual = reservationDAO.getReservation(reservationId);
+		assertThat(actual.getDateInterval().getStart()).isEqualTo(expectedStart);
+		assertThat(actual.getDateInterval().getEnd()).isEqualTo(expectedEnd.minus(1, DAYS));
 	}
 
 	static class Initializer

@@ -2,6 +2,7 @@ package com.upgrade.islandrsvsrv.repository;
 
 import com.upgrade.islandrsvsrv.domain.DateInterval;
 import com.upgrade.islandrsvsrv.domain.Reservation;
+import com.upgrade.islandrsvsrv.domain.api.ReservationModification;
 import com.upgrade.islandrsvsrv.domain.api.ReservationRequest;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
@@ -138,17 +139,19 @@ public class ReservationDAOTestIT {
 		ReservationRequest reservation = ReservationRequest.builder()
 				.userEmail("email")
 				.userName("userName")
-				.start(LocalDate.now().plus(6, MONTHS))
-				.end(LocalDate.now().plus(7, MONTHS))
+				.start(LocalDate.now().plus(8, MONTHS))
+				.end(LocalDate.now().plus(9, MONTHS))
 				.build();
 		Long reservationId = reservationDAO.insertReservation(reservation);
 
 		//when
 		LocalDate expectedStart = LocalDate.now().plus(666, DAYS);
 		LocalDate expectedEnd = LocalDate.now().plus(667, DAYS);
-		reservationDAO.updateReservation(reservationId,
-										 expectedStart,
-										 expectedEnd);
+		reservationDAO.updateReservation(ReservationModification.builder()
+												 .reservationId(reservationId)
+												 .start(expectedStart)
+												 .end(expectedEnd)
+												 .build());
 
 		//then
 		Reservation actualReservation = reservationDAO.getReservation(reservationId);

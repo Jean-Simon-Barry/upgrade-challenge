@@ -1,5 +1,6 @@
 package com.upgrade.islandrsvsrv.controllers;
 
+import com.upgrade.islandrsvsrv.domain.api.ReservationModification;
 import com.upgrade.islandrsvsrv.domain.api.ReservationRequest;
 import com.upgrade.islandrsvsrv.services.ReservationService;
 import org.junit.Before;
@@ -163,6 +164,84 @@ public class ReservationControllerTest {
 
 		// when
 		reservationController.newReservation(reservation);
+
+		verify(reservationService, never()).insertReservation(any());
+	}
+
+	@Test
+	public void testUpdateThrowsExceptionIfExceedThreeDays() {
+		// given
+		LocalDate startDate = now().plus(1, DAYS);
+		LocalDate endDate = now().plus(5, DAYS);
+		ReservationModification reservation = ReservationModification.builder()
+				.start(startDate)
+				.end(endDate)
+				.reservationId(1L)
+				.build();
+		expectedEx.expect(ResponseStatusException.class);
+		expectedEx.expectMessage("Reservation can only be for 3 days at a time.");
+
+		// when
+		reservationController.modifyReservation(reservation);
+
+		verify(reservationService, never()).insertReservation(any());
+	}
+
+	@Test
+	public void testUpdateThrowsExceptionWhenEndDateIsBeforeStartDate() {
+		// given
+		LocalDate startDate = LocalDate.parse("2019-01-02", dateFormatter);
+		LocalDate endDate = LocalDate.parse("2019-01-01", dateFormatter);
+
+		ReservationModification reservation = ReservationModification.builder()
+				.reservationId(1L)
+				.start(startDate)
+				.end(endDate)
+				.build();
+
+		expectedEx.expect(ResponseStatusException.class);
+		expectedEx.expectMessage("The end date cannot be before the start date.");
+
+		// when
+		reservationController.modifyReservation(reservation);
+
+		verify(reservationService, never()).insertReservation(any());
+	}
+
+	@Test
+	public void testUpdateThrowsExceptionWhenEndDateIsBeforeNow() {
+		// given
+		LocalDate startDate = now().minus(2, DAYS);
+		LocalDate endDate = now().minus(1, DAYS);
+		ReservationModification reservation = ReservationModification.builder()
+				.reservationId(1L)
+				.start(startDate)
+				.end(endDate)
+				.build();
+		expectedEx.expect(ResponseStatusException.class);
+		expectedEx.expectMessage("The end date cannot be in the past.");
+
+		// when
+		reservationController.modifyReservation(reservation);
+
+		verify(reservationService, never()).insertReservation(any());
+	}
+
+	@Test
+	public void testUpdateThrowsExceptionWhenStartDateIsNotInFuture() {
+		// given
+		LocalDate startDate = now().minus(2, DAYS);
+		LocalDate endDate = now().plus(1, DAYS);
+		ReservationModification reservation = ReservationModification.builder()
+				.reservationId(1L)
+				.start(startDate)
+				.end(endDate)
+				.build();
+		expectedEx.expect(ResponseStatusException.class);
+		expectedEx.expectMessage("The start date must be in the future.");
+
+		// when
+		reservationController.modifyReservation(reservation);
 
 		verify(reservationService, never()).insertReservation(any());
 	}

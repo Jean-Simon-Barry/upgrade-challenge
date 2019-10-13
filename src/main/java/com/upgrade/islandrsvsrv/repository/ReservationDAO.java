@@ -2,6 +2,7 @@ package com.upgrade.islandrsvsrv.repository;
 
 import com.upgrade.islandrsvsrv.domain.DateInterval;
 import com.upgrade.islandrsvsrv.domain.Reservation;
+import com.upgrade.islandrsvsrv.domain.api.ReservationModification;
 import com.upgrade.islandrsvsrv.domain.api.ReservationRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -72,12 +73,12 @@ public class ReservationDAO {
 		return requireNonNull(keyHolder.getKey()).longValue();
 	}
 
-	public void updateReservation(Long reservationId, LocalDate newStart, LocalDate newEnd) {
+	public void updateReservation(ReservationModification modification) {
 		jdbc.update(connection -> {
 			PreparedStatement ps = connection.prepareStatement(UPDATE_RESERVATION, new String[]{"id"});
-			ps.setDate(1, Date.valueOf(newStart));
-			ps.setDate(2, Date.valueOf(newEnd));
-			ps.setLong(3, reservationId);
+			ps.setDate(1, Date.valueOf(modification.getStart()));
+			ps.setDate(2, Date.valueOf(modification.getEnd()));
+			ps.setLong(3, modification.getReservationId());
 			return ps;
 		});
 	}

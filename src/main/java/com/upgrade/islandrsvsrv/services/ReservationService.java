@@ -1,6 +1,7 @@
 package com.upgrade.islandrsvsrv.services;
 
 import com.upgrade.islandrsvsrv.domain.Reservation;
+import com.upgrade.islandrsvsrv.domain.api.ReservationModification;
 import com.upgrade.islandrsvsrv.domain.api.ReservationRequest;
 import com.upgrade.islandrsvsrv.repository.ReservationDAO;
 import lombok.RequiredArgsConstructor;
@@ -29,5 +30,9 @@ public class ReservationService {
 
 	public Long insertReservation(ReservationRequest reservationRequest) throws DataIntegrityViolationException {
 		return reservationDAO.insertReservation(reservationRequest);
+	}
+
+	public void updateReservation(ReservationModification modification) {
+		reservationDAO.updateReservation(modification);
 	}
 }
