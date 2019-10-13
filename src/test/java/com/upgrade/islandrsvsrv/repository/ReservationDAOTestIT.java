@@ -1,6 +1,7 @@
 package com.upgrade.islandrsvsrv.repository;
 
 import com.upgrade.islandrsvsrv.domain.DateInterval;
+import com.upgrade.islandrsvsrv.domain.Reservation;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +18,13 @@ import reactor.test.StepVerifier;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Optional;
 
 import static java.time.temporal.ChronoUnit.DAYS;
+import static java.time.temporal.ChronoUnit.MONTHS;
 import static org.hamcrest.Matchers.hasItems;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(initializers = {ReservationDAOTestIT.Initializer.class})
@@ -31,9 +35,6 @@ public class ReservationDAOTestIT {
 	private static final LocalDate NOW = LocalDate.now();
 	private static final LocalDate START_DATE_WINDOW = NOW;
 	private static final LocalDate END_DATE_WINDOW = NOW.plus(10, DAYS);
-
-	private static final LocalDate RESERVATION_START = START_DATE_WINDOW.plus(3, DAYS);
-	private static final LocalDate RESERVATION_END = RESERVATION_START.plus(3, DAYS);
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -47,22 +48,28 @@ public class ReservationDAOTestIT {
 	@Before
 	public void setUp() {
 		reservationDAO = new ReservationDAO(jdbcTemplate);
-
-		// given
-		insertUser();
-		insertReservation(RESERVATION_START, RESERVATION_END);
 	}
 
 	@Test
 	public void testReturnsAvailabilityPeriods() {
+
+		//given
+		LocalDate reservationStart = START_DATE_WINDOW.plus(3, DAYS);
+		LocalDate reservationEnd = reservationStart.plus(3, DAYS);
+		Reservation reservation = Reservation.builder()
+				.userEmail("emailhere")
+				.userName("fullnamehere")
+				.dateInterval(new DateInterval(reservationStart, reservationEnd))
+				.build();
+		reservationDAO.insertReservation(reservation);
 
 		// when
 		Flux<DateInterval> availabilities = reservationDAO.getAvailabilities(START_DATE_WINDOW, END_DATE_WINDOW);
 
 		// then
 		DateInterval expectedAvailableInterval1 = new DateInterval(START_DATE_WINDOW,
-																  RESERVATION_START.minus(1, DAYS));
-		DateInterval expectedAvailableInterval2 = new DateInterval(RESERVATION_END, END_DATE_WINDOW);
+																  reservationStart.minus(1, DAYS));
+		DateInterval expectedAvailableInterval2 = new DateInterval(reservationEnd, END_DATE_WINDOW);
 
 		StepVerifier.create(availabilities)
 				.recordWith(ArrayList::new)
@@ -72,13 +79,20 @@ public class ReservationDAOTestIT {
 				.verifyComplete();
 	}
 
-	private void insertReservation(LocalDate start, LocalDate end) {
-		jdbcTemplate.execute("insert into camping_reservation(camping_user_id, reservation_dates) " +
-									 "values (1, daterange(\'" + start + "\',\'" + end + "\'));");
-	}
+	@Test
+	public void testInsertReservationReturnsId() {
+		//given
+		Reservation reservation = Reservation.builder()
+				.userEmail("email")
+				.userName("userName")
+				.dateInterval(new DateInterval(LocalDate.now().plus(3, MONTHS),
+											   LocalDate.now().plus(4, MONTHS)))
+				.build();
+		// when
+		Optional<Long> reservationId = reservationDAO.insertReservation(reservation);
 
-	private void insertUser() {
-		jdbcTemplate.execute("insert into camping_user(name, last_name, email) values ('js', 'js', 'js@js.com');");
+		// then
+		assertTrue(reservationId.isPresent());
 	}
 
 	static class Initializer
