@@ -4,6 +4,7 @@ import com.upgrade.islandrsvsrv.domain.Reservation;
 import com.upgrade.islandrsvsrv.domain.api.ReservationRequest;
 import com.upgrade.islandrsvsrv.repository.ReservationDAO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
@@ -23,5 +24,9 @@ public class ReservationService {
 																   .datesUntil(dateInterval.getEnd())
 																   .collect(toList())
 						 ));
+	}
+
+	public Long insertReservation(ReservationRequest reservationRequest) throws DataIntegrityViolationException {
+		return reservationDAO.insertReservation(reservationRequest);
 	}
 }

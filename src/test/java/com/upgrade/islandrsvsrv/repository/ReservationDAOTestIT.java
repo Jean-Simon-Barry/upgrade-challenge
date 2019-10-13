@@ -97,10 +97,10 @@ public class ReservationDAOTestIT {
 				.end(LocalDate.now().plus(4, MONTHS))
 				.build();
 		// when
-		Optional<Long> reservationId = reservationDAO.insertReservation(reservation);
+		Long reservationId = reservationDAO.insertReservation(reservation);
 
 		// then
-		assertTrue(reservationId.isPresent());
+		assertTrue(reservationId > 1);
 	}
 
 	@Test

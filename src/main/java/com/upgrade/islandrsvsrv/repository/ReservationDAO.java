@@ -4,6 +4,7 @@ import com.upgrade.islandrsvsrv.domain.DateInterval;
 import com.upgrade.islandrsvsrv.domain.Reservation;
 import com.upgrade.islandrsvsrv.domain.api.ReservationRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -14,9 +15,11 @@ import reactor.core.publisher.Flux;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 import java.util.Optional;
 
 import static java.time.temporal.ChronoUnit.DAYS;
+import static java.util.Objects.requireNonNull;
 
 
 @RequiredArgsConstructor
@@ -37,7 +40,7 @@ public class ReservationDAO {
 											Date.valueOf(end)));
 	}
 
-	public Optional<Long> insertReservation(ReservationRequest reservation) {
+	public Long insertReservation(ReservationRequest reservation) throws DataIntegrityViolationException {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		jdbc.update(connection -> {
 						PreparedStatement ps = connection.prepareStatement(INSERT_RESERVATION, new String[]{"id"});
@@ -48,7 +51,7 @@ public class ReservationDAO {
 						return ps;
 					},
 					keyHolder);
-		return keyHolder.getKey() == null ? Optional.empty() : Optional.of(keyHolder.getKey().longValue());
+		return requireNonNull(keyHolder.getKey()).longValue();
 	}
 
 	private DateInterval availabilitiesFromQuerySet(ResultSet rs) throws SQLException {

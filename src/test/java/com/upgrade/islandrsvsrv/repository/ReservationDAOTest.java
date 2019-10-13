@@ -53,24 +53,4 @@ public class ReservationDAOTest {
 
 		verify(jdbcTemplate).query(any(String.class), any(RowMapper.class), any(), any());
 	}
-
-	@Test
-	public void insertReservation() {
-		// given
-		LocalDate start = now();
-		LocalDate end = now().plus(10, DAYS);
-		ReservationRequest reservation = ReservationRequest.builder()
-				.userEmail("email")
-				.userName("userName")
-				.start(start)
-				.end(end)
-				.build();
-		when(jdbcTemplate.update(any(), any(KeyHolder.class))).thenReturn(1);
-
-		// when
-		reservationDAO.insertReservation(reservation);
-
-		// then
-		verify(jdbcTemplate).update(any(), any(KeyHolder.class));
-	}
 }
