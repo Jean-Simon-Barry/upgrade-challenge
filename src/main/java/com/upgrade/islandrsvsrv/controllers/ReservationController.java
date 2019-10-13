@@ -50,6 +50,11 @@ public class ReservationController {
 		}
 	}
 
+	@DeleteMapping("/{id}")
+	public void deleteReservation(@PathVariable("id") Long reservationId) {
+		reservationService.deleteReservation(reservationId);
+	}
+
 	private void validateRequestDoesNotExceedThreeDays(LocalDate start, LocalDate end) {
 		if (Period.between(start, end).getDays() > 3) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Reservation can only be for 3 days at a time.");

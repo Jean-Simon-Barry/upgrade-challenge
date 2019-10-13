@@ -43,6 +43,8 @@ public class ReservationDAO {
 	private static final String GET_RESERVATION = "SELECT user_name, user_email, reservation_dates" +
 			" FROM camping_reservation WHERE id = ?";
 
+	private static final String DELETE_RESERVATION = "DELETE FROM camping_reservation where id = ?";
+
 
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -75,10 +77,18 @@ public class ReservationDAO {
 
 	public void updateReservation(ReservationModification modification) {
 		jdbc.update(connection -> {
-			PreparedStatement ps = connection.prepareStatement(UPDATE_RESERVATION, new String[]{"id"});
+			PreparedStatement ps = connection.prepareStatement(UPDATE_RESERVATION);
 			ps.setDate(1, Date.valueOf(modification.getStart()));
 			ps.setDate(2, Date.valueOf(modification.getEnd()));
 			ps.setLong(3, modification.getReservationId());
+			return ps;
+		});
+	}
+
+	public void deleteReservation(long reservationId) {
+		jdbc.update(connection -> {
+			PreparedStatement ps = connection.prepareStatement(DELETE_RESERVATION);
+			ps.setLong(1, reservationId);
 			return ps;
 		});
 	}

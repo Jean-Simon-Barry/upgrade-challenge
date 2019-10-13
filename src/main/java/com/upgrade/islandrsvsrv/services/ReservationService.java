@@ -35,4 +35,8 @@ public class ReservationService {
 	public void updateReservation(ReservationModification modification) {
 		reservationDAO.updateReservation(modification);
 	}
+
+	public void deleteReservation(long reservationId) {
+		reservationDAO.deleteReservation(reservationId);
+	}
 }

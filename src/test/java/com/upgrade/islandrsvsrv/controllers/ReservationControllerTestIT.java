@@ -7,13 +7,16 @@ import com.upgrade.islandrsvsrv.domain.api.ReservationModification;
 import com.upgrade.islandrsvsrv.domain.api.ReservationRequest;
 import com.upgrade.islandrsvsrv.repository.ReservationDAO;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -23,12 +26,10 @@ import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.List;
 
 import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
-import static java.time.temporal.ChronoUnit.MONTHS;
-import static java.util.stream.Collectors.toList;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -45,8 +46,8 @@ public class ReservationControllerTestIT {
 	@Autowired
 	private ReservationDAO reservationDAO;
 
-	@Autowired
-	private ReservationController reservationController;
+	@Rule
+	public ExpectedException expectedEx = ExpectedException.none();
 
 	@ClassRule
 	public static PostgreSQLContainer postgres = new PostgreSQLContainer<>("postgres:latest")
@@ -159,6 +160,30 @@ public class ReservationControllerTestIT {
 		Reservation actual = reservationDAO.getReservation(reservationId);
 		assertThat(actual.getDateInterval().getStart()).isEqualTo(expectedStart);
 		assertThat(actual.getDateInterval().getEnd()).isEqualTo(expectedEnd.minus(1, DAYS));
+	}
+
+	@Test
+	public void testDeletesReservation() {
+		//given
+		ReservationRequest build = ReservationRequest.builder()
+				.start(now().plus(23, DAYS))
+				.end(now().plus(27, DAYS))
+				.userEmail("email")
+				.userName("username")
+				.build();
+		Long reservationId = reservationDAO.insertReservation(build);
+
+		//when
+		webTestClient.delete()
+				.uri("/reservation/{id}", reservationId)
+				.accept(MediaType.APPLICATION_JSON_UTF8)
+				.exchange()
+				.expectStatus().isOk();
+
+		//then
+		expectedEx.expect(EmptyResultDataAccessException.class);
+		expectedEx.expectMessage("Incorrect result size: expected 1, actual 0");
+		reservationDAO.getReservation(reservationId);
 	}
 
 	static class Initializer

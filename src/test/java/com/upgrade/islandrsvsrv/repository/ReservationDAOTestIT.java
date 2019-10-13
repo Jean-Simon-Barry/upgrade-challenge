@@ -13,6 +13,7 @@ import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -159,6 +160,26 @@ public class ReservationDAOTestIT {
 		assertThat(actualReservation.getDateInterval().getStart()).isEqualTo(expectedStart);
 		//exclusives dates when reserving since guests must checkout at midnight so substract 1 day from "expected"
 		assertThat(actualReservation.getDateInterval().getEnd()).isEqualTo(expectedEnd.minus(1, DAYS));
+	}
+
+	@Test
+	public void testDeleteReservation() {
+		//given
+		ReservationRequest reservation = ReservationRequest.builder()
+				.userEmail("email")
+				.userName("userName")
+				.start(LocalDate.now().plus(10, MONTHS))
+				.end(LocalDate.now().plus(11, MONTHS))
+				.build();
+		Long reservationId = reservationDAO.insertReservation(reservation);
+
+		//when
+		expectedEx.expect(EmptyResultDataAccessException.class);
+		expectedEx.expectMessage("Incorrect result size: expected 1, actual 0");
+		reservationDAO.deleteReservation(reservationId);
+
+		//then
+		reservationDAO.getReservation(reservationId);
 	}
 
 	static class Initializer
