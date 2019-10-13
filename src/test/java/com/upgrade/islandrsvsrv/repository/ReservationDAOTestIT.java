@@ -16,7 +16,6 @@ import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.ArrayList;
 
 import static java.time.temporal.ChronoUnit.DAYS;

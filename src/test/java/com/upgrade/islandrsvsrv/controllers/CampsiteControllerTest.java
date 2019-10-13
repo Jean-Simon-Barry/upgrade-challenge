@@ -45,8 +45,8 @@ public class CampsiteControllerTest {
     @Test
     public void testReturnsAvailabilitiesForCampsite() {
         // given
-        LocalDate requestStartDate = now();
-        LocalDate requestEndDate = now().plus(1, DAYS);
+        LocalDate requestStartDate = LocalDate.parse("2019-10-13", dateFormatter);
+		LocalDate requestEndDate = LocalDate.parse("2019-10-16", dateFormatter);
 
 		LocalDate availabilityOne = LocalDate.parse("2019-01-01", dateFormatter);
 		LocalDate availabilityTwo = LocalDate.parse("2019-01-02", dateFormatter);
@@ -116,6 +116,20 @@ public class CampsiteControllerTest {
 		LocalDate endDate = now().minus(1, DAYS);
 		expectedEx.expect(ResponseStatusException.class);
 		expectedEx.expectMessage("The end date cannot be in the past.");
+
+		// when
+		campsiteController.getAvailabilities(startDate, endDate);
+
+		verify(reservationService, never()).getAvailabilities(any(), any());
+	}
+
+	@Test
+	public void testThrowsExceptionWhenStartDateIsNotInFuture() {
+		// given
+		LocalDate startDate = now().minus(2, DAYS);
+		LocalDate endDate = now().plus(1, DAYS);
+		expectedEx.expect(ResponseStatusException.class);
+		expectedEx.expectMessage("The start date must be in the future.");
 
 		// when
 		campsiteController.getAvailabilities(startDate, endDate);

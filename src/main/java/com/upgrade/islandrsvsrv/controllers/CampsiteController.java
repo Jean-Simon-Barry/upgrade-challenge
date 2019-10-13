@@ -15,6 +15,7 @@ import reactor.core.publisher.Flux;
 import java.time.LocalDate;
 
 import static java.time.LocalDate.now;
+import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.MONTHS;
 
 @RestController
@@ -30,12 +31,13 @@ public class CampsiteController {
 	public Flux<LocalDate> getAvailabilities(
 			@RequestParam(value = "startDate", required = false)
 			@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-			@RequestParam(value = "startDate", required = false)
+			@RequestParam(value = "endDate", required = false)
 			@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
 
 		if (startDate == null || endDate == null) {
-			startDate = now();
-			endDate = now().plus(DEFAULT_AVAILABILITY_WINDOW_MONTHS, MONTHS);
+			LocalDate tomorrow = now().plus(1, DAYS);
+			startDate = tomorrow;
+			endDate = tomorrow.plus(DEFAULT_AVAILABILITY_WINDOW_MONTHS, MONTHS);
 		}
 		validateDates(startDate, endDate);
 
@@ -47,6 +49,8 @@ public class CampsiteController {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The end date cannot be before the start date.");
 		} else if (end.isBefore(now())) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The end date cannot be in the past.");
+		} else if (!start.isAfter(now())) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The start date must be in the future.");
 		}
 	}
 
