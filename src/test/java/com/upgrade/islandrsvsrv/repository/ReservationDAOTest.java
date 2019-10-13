@@ -16,6 +16,7 @@ import reactor.test.StepVerifier;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -42,8 +43,8 @@ public class ReservationDAOTest {
 		// given
 		LocalDate start = now();
 		LocalDate end = now().plus(10, DAYS);
-		DateInterval expected = new DateInterval(start, end.minus(2, DAYS));
-		when(jdbcTemplate.query(any(String.class), any(RowMapper.class), any(), any())).thenReturn(List.of(expected));
+		DateInterval expected = new DateInterval(start, end.minus(1, DAYS));
+		when(jdbcTemplate.query(any(String.class), any(RowMapper.class), any(), any())).thenReturn(List.of(Optional.of(expected)));
 
 		// when
 		Flux<DateInterval> availabilities = reservationDAO.getAvailabilities(start, end);

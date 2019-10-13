@@ -19,7 +19,7 @@ public class ReservationController {
 
 	private final ReservationService reservationService;
 
-	@PostMapping("/")
+	@PostMapping
 	public Long newReservation(@RequestBody ReservationRequest reservationRequest) {
 
 		validateDates(reservationRequest.getStart(), reservationRequest.getEnd());

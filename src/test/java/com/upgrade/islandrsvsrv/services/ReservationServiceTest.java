@@ -38,7 +38,7 @@ public class ReservationServiceTest {
 	}
 
 	@Test
-	public void getAvailabilities() {
+	public void getAvailabilitiesSearchesInclusiveEndDate() {
 		//given
 		LocalDate start = now();
 		LocalDate end = start.plus(10, DAYS);
@@ -59,6 +59,7 @@ public class ReservationServiceTest {
 				.expectNext(start.plus(7, DAYS))
 				.expectNext(start.plus(8, DAYS))
 				.expectNext(start.plus(9, DAYS))
+				.expectNext(start.plus(10, DAYS))
 				.expectComplete()
 				.verify();
 

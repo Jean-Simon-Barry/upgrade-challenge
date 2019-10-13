@@ -10,6 +10,7 @@ import reactor.core.publisher.Flux;
 
 import java.time.LocalDate;
 
+import static java.time.temporal.ChronoUnit.DAYS;
 import static java.util.stream.Collectors.toList;
 
 @Service
@@ -21,7 +22,7 @@ public class ReservationService {
 	public Flux<LocalDate> getAvailabilities(LocalDate dateStart, LocalDate dateEnd) {
 		return reservationDAO.getAvailabilities(dateStart, dateEnd)
 				.flatMap(dateInterval -> Flux.fromIterable(dateInterval.getStart()
-																   .datesUntil(dateInterval.getEnd())
+																   .datesUntil(dateInterval.getEnd().plus(1, DAYS))
 																   .collect(toList())
 						 ));
 	}

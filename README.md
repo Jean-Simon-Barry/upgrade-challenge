@@ -9,7 +9,7 @@ You must also have maven installed.
 <h3>To run locally</h3>
 From the project root, run 
 
-```mvn package```
+```mvn clean package```
 
 followed by a 
 

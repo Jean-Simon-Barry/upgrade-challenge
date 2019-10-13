@@ -2,12 +2,11 @@ package com.upgrade.islandrsvsrv.controllers;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
+import com.upgrade.islandrsvsrv.domain.api.ReservationRequest;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
@@ -16,9 +15,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.containers.PostgreSQLContainer;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -30,11 +28,10 @@ import static java.time.temporal.ChronoUnit.MONTHS;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 @RunWith(SpringRunner.class)
-@ContextConfiguration(initializers = {CampsiteControllerTestIT.Initializer.class})
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class CampsiteControllerTestIT {
+@ContextConfiguration(initializers = {ReservationControllerTestIT.Initializer.class})
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+public class ReservationControllerTestIT {
 
 	@Autowired
 	private ObjectMapper mapper;
@@ -43,7 +40,7 @@ public class CampsiteControllerTestIT {
 	private WebTestClient webTestClient;
 
 	@Autowired
-	private CampsiteController campsiteController;
+	private ReservationController reservationController;
 
 	@ClassRule
 	public static PostgreSQLContainer postgres = new PostgreSQLContainer<>("postgres:latest")
@@ -51,66 +48,79 @@ public class CampsiteControllerTestIT {
 			.withUsername("upgrade")
 			.withPassword("upgrade");
 
-
 	@Test
-	public void testReturnsDefaultAvailabilities() throws Exception {
+	public void testInsertReservation() throws Exception {
 		//given
-		LocalDate tomorrow = now().plus(1, DAYS);
+		LocalDate startDate = now().plus(1, DAYS);
+		LocalDate endDate = now().plus(4, DAYS);
+		ReservationRequest reservation = ReservationRequest.builder()
+				.userEmail("email")
+				.userName("userName")
+				.start(startDate)
+				.end(endDate)
+				.build();
+
 		//when
-		webTestClient.get()
-				.uri("/campsite/availabilities")
+		webTestClient.post()
+				.uri("/reservation")
+				.accept(MediaType.APPLICATION_JSON_UTF8)
+				.body(Mono.just(reservation), ReservationRequest.class)
 				.exchange()
 				.expectStatus().isOk()
 				.expectHeader().contentType(MediaType.APPLICATION_JSON_UTF8)
 				.expectBody()
 				.consumeWith(response -> {
-					List<LocalDate> dates = null;
+					Long reservationId = null;
 					try {
-						dates = mapper.readValue(response.getResponseBody(),
-												 new TypeReference<List<LocalDate>>() {});
+						reservationId = mapper.readValue(response.getResponseBody(), new TypeReference<Long>() {
+						});
 					} catch (IOException e) {
 						//noop
 					}
 
 					//then
-					assertThat(dates).containsExactlyElementsOf(tomorrow.datesUntil(tomorrow.plus(1, MONTHS)
-																							.plus(1, DAYS))
-																		.collect(toList()));
+					assertThat(reservationId).isEqualTo(1L);
 				});
 
 	}
 
 	@Test
-	public void testAvailabilitiesForRequestedTimeFrame() throws Exception {
+	public void testInsertReservationReturnsErrorIfOverlapping() throws Exception {
 		//given
-		LocalDate tomorrow = now().plus(1, DAYS);
-		LocalDate tenDaysFromNow = now().plus(10, DAYS);
+		LocalDate startDate = now().plus(10, DAYS);
+		LocalDate endDate = now().plus(13, DAYS);
+		ReservationRequest reservation = ReservationRequest.builder()
+				.userEmail("email")
+				.userName("userName")
+				.start(startDate)
+				.end(endDate)
+				.build();
+
 		//when
-		webTestClient.get()
-				.uri(uriBuilder -> uriBuilder.path("/campsite/availabilities")
-						.queryParam("startDate", tomorrow)
-						.queryParam("endDate", tenDaysFromNow)
-						.build())
+		webTestClient.post()
+				.uri("/reservation")
+				.accept(MediaType.APPLICATION_JSON_UTF8)
+				.body(Mono.just(reservation), ReservationRequest.class)
 				.exchange()
 				.expectStatus().isOk()
 				.expectHeader().contentType(MediaType.APPLICATION_JSON_UTF8)
-				.expectBody()
-				.consumeWith(response -> {
-					List<LocalDate> dates = null;
-					try {
-						dates = mapper.readValue(response.getResponseBody(),
-												 new TypeReference<List<LocalDate>>() {});
-					} catch (IOException e) {
-						//noop
-					}
+				.expectBody();
 
-					//then
-					assertThat(dates).containsExactlyElementsOf(
-							tomorrow.datesUntil(tenDaysFromNow.plus(1, DAYS)).collect(toList()));
-				});
+		webTestClient.post()
+				.uri("/reservation")
+				.accept(MediaType.APPLICATION_JSON_UTF8)
+				.body(Mono.just(reservation), ReservationRequest.class)
+				.exchange()
+				.expectStatus().is4xxClientError()
+				.expectHeader().contentType(MediaType.APPLICATION_JSON_UTF8)
+				.expectBody()
+				.jsonPath("$.message", "" +
+						"Sorry it looks like the island is booked somewhere between " +
+						startDate  + "and " +
+						endDate + "." +
+						"Please try another time slot.");
 
 	}
-
 
 	static class Initializer
 			implements ApplicationContextInitializer<ConfigurableApplicationContext> {
