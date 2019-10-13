@@ -32,8 +32,8 @@ public class ReservationService {
 		return reservationDAO.insertReservation(reservationRequest);
 	}
 
-	public void updateReservation(ReservationModification modification) {
-		reservationDAO.updateReservation(modification);
+	public void updateReservation(long reservationId, ReservationModification modification) {
+		reservationDAO.updateReservation(reservationId, modification);
 	}
 
 	public void deleteReservation(long reservationId) {

@@ -36,12 +36,13 @@ public class ReservationController {
 		}
 	}
 
-	@PutMapping
-	public void modifyReservation(@RequestBody ReservationModification modification) {
+	@PutMapping("/{id}")
+	public void modifyReservation(@RequestBody ReservationModification modification,
+								  @PathVariable("id") long reservationId) {
 		validateDates(modification.getStart(), modification.getEnd());
 		validateRequestDoesNotExceedThreeDays(modification.getStart(), modification.getEnd());
 		try {
-			reservationService.updateReservation(modification);
+			reservationService.updateReservation(reservationId, modification);
 		} catch (DataIntegrityViolationException e) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sorry it looks like the island is booked " +
 					"somewhere between " + modification.getStart() + " and " + modification.getEnd() +

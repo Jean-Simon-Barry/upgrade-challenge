@@ -75,12 +75,12 @@ public class ReservationDAO {
 		return requireNonNull(keyHolder.getKey()).longValue();
 	}
 
-	public void updateReservation(ReservationModification modification) {
+	public void updateReservation(long reservationId, ReservationModification modification) {
 		jdbc.update(connection -> {
 			PreparedStatement ps = connection.prepareStatement(UPDATE_RESERVATION);
 			ps.setDate(1, Date.valueOf(modification.getStart()));
 			ps.setDate(2, Date.valueOf(modification.getEnd()));
-			ps.setLong(3, modification.getReservationId());
+			ps.setLong(3, reservationId);
 			return ps;
 		});
 	}

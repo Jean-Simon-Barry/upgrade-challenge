@@ -176,13 +176,12 @@ public class ReservationControllerTest {
 		ReservationModification reservation = ReservationModification.builder()
 				.start(startDate)
 				.end(endDate)
-				.reservationId(1L)
 				.build();
 		expectedEx.expect(ResponseStatusException.class);
 		expectedEx.expectMessage("Reservation can only be for 3 days at a time.");
 
 		// when
-		reservationController.modifyReservation(reservation);
+		reservationController.modifyReservation( reservation, 1L);
 
 		verify(reservationService, never()).insertReservation(any());
 	}
@@ -194,7 +193,6 @@ public class ReservationControllerTest {
 		LocalDate endDate = LocalDate.parse("2019-01-01", dateFormatter);
 
 		ReservationModification reservation = ReservationModification.builder()
-				.reservationId(1L)
 				.start(startDate)
 				.end(endDate)
 				.build();
@@ -203,7 +201,7 @@ public class ReservationControllerTest {
 		expectedEx.expectMessage("The end date cannot be before the start date.");
 
 		// when
-		reservationController.modifyReservation(reservation);
+		reservationController.modifyReservation(reservation, 1L);
 
 		verify(reservationService, never()).insertReservation(any());
 	}
@@ -214,7 +212,6 @@ public class ReservationControllerTest {
 		LocalDate startDate = now().minus(2, DAYS);
 		LocalDate endDate = now().minus(1, DAYS);
 		ReservationModification reservation = ReservationModification.builder()
-				.reservationId(1L)
 				.start(startDate)
 				.end(endDate)
 				.build();
@@ -222,7 +219,7 @@ public class ReservationControllerTest {
 		expectedEx.expectMessage("The end date cannot be in the past.");
 
 		// when
-		reservationController.modifyReservation(reservation);
+		reservationController.modifyReservation(reservation, 1L);
 
 		verify(reservationService, never()).insertReservation(any());
 	}
@@ -233,7 +230,6 @@ public class ReservationControllerTest {
 		LocalDate startDate = now().minus(2, DAYS);
 		LocalDate endDate = now().plus(1, DAYS);
 		ReservationModification reservation = ReservationModification.builder()
-				.reservationId(1L)
 				.start(startDate)
 				.end(endDate)
 				.build();
@@ -241,7 +237,7 @@ public class ReservationControllerTest {
 		expectedEx.expectMessage("The start date must be in the future.");
 
 		// when
-		reservationController.modifyReservation(reservation);
+		reservationController.modifyReservation(reservation, 1L);
 
 		verify(reservationService, never()).insertReservation(any());
 	}

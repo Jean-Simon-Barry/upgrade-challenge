@@ -13,7 +13,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class ReservationModification {
 
-	private Long reservationId;
 	private LocalDate start;
 	private LocalDate end;
 }

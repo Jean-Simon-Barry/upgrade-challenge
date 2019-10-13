@@ -145,12 +145,11 @@ public class ReservationControllerTestIT {
 		ReservationModification modification = ReservationModification.builder()
 				.start(expectedStart)
 				.end(expectedEnd)
-				.reservationId(reservationId)
 				.build();
 
 		//when
 		webTestClient.put()
-				.uri("/reservation")
+				.uri("/reservation/{id}", reservationId)
 				.accept(MediaType.APPLICATION_JSON_UTF8)
 				.body(Mono.just(modification), ReservationModification.class)
 				.exchange()

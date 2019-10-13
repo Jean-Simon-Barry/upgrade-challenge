@@ -148,8 +148,7 @@ public class ReservationDAOTestIT {
 		//when
 		LocalDate expectedStart = LocalDate.now().plus(666, DAYS);
 		LocalDate expectedEnd = LocalDate.now().plus(667, DAYS);
-		reservationDAO.updateReservation(ReservationModification.builder()
-												 .reservationId(reservationId)
+		reservationDAO.updateReservation(reservationId, ReservationModification.builder()
 												 .start(expectedStart)
 												 .end(expectedEnd)
 												 .build());
