@@ -39,7 +39,8 @@ public class ReservationDAO {
 	/**
 	 * It seems like there's no support for jdbc to resultset.getDateRange(column), so I am forced to parse the range as
 	 * a string. It's no big deal I guess but adds some complexity.
-	 * @param dateRange the daterange is of this format : '[yyyy-MM-dd,yyyy-MM-dd)'
+	 * @param dateRange the daterange is of this format : '[yyyy-MM-dd,yyyy-MM-dd)' since we are dealing with exclusive
+	 *                  end dates.
 	 * @return a Period parsed from daterange passed as a string
 	 */
 	private DateInterval parsePeriodFromDateRangeString(String dateRange) {
