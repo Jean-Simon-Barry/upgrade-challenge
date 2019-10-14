@@ -1,6 +1,5 @@
 package com.upgrade.islandrsvsrv.services;
 
-import com.upgrade.islandrsvsrv.domain.DateInterval;
 import com.upgrade.islandrsvsrv.domain.api.ReservationRequest;
 import com.upgrade.islandrsvsrv.repository.ReservationDAO;
 import org.junit.Before;
@@ -15,10 +14,10 @@ import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -28,13 +27,14 @@ public class ReservationServiceTest {
 	@Mock
 	private ReservationDAO reservationDAO;
 	private ReservationService reservationService;
+	private AvailabilityService availabilityService = new AvailabilityService();
 
 	@Rule
 	public ExpectedException expectedEx = ExpectedException.none();
 
 	@Before
 	public void setUp() throws Exception {
-		reservationService = new ReservationService(reservationDAO);
+		reservationService = new ReservationService(reservationDAO, availabilityService);
 	}
 
 	@Test
@@ -42,7 +42,7 @@ public class ReservationServiceTest {
 		//given
 		LocalDate start = now();
 		LocalDate end = start.plus(10, DAYS);
-		when(reservationDAO.getReservationDates(start, end)).thenReturn(List.of(new DateInterval(start, end)));
+		when(reservationDAO.getReservationDates(start, end)).thenReturn(emptyList());
 
 		//when
 		Flux<LocalDate> availabilities = reservationService.getAvailabilities(start, end);
@@ -59,10 +59,8 @@ public class ReservationServiceTest {
 				.expectNext(start.plus(7, DAYS))
 				.expectNext(start.plus(8, DAYS))
 				.expectNext(start.plus(9, DAYS))
-				.expectNext(start.plus(10, DAYS))
 				.expectComplete()
 				.verify();
-
 	}
 
 	@Test

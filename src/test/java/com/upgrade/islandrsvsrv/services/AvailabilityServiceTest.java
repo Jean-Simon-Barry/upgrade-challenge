@@ -32,8 +32,8 @@ public class AvailabilityServiceTest {
 		LocalDate tenDaysFromNow = now.plus(10, DAYS);
 
 		//when
-		List<LocalDate> availableDates = availabilityService.getAvailableDates(new DateInterval(now, tenDaysFromNow),
-																			   emptyList());
+		List<LocalDate> availableDates = availabilityService.findAvailabilities(new DateInterval(now, tenDaysFromNow),
+																				emptyList());
 
 		//then
 		List<LocalDate> expectedDates = now.datesUntil(tenDaysFromNow).collect(toList());
@@ -50,8 +50,8 @@ public class AvailabilityServiceTest {
 		DateInterval reservation = new DateInterval(now, now.plus(2, DAYS));
 
 		//when
-		List<LocalDate> availableDates = availabilityService.getAvailableDates(new DateInterval(now, tenDaysFromNow),
-																			   List.of(reservation));
+		List<LocalDate> availableDates = availabilityService.findAvailabilities(new DateInterval(now, tenDaysFromNow),
+																				List.of(reservation));
 
 		//then
 		List<LocalDate> expectedDates = now.plus(2, DAYS).datesUntil(tenDaysFromNow).collect(toList());
@@ -71,8 +71,8 @@ public class AvailabilityServiceTest {
 		DateInterval reservation = new DateInterval(reservationStart, reservationEnd);
 
 		//when
-		List<LocalDate> availableDates = availabilityService.getAvailableDates(new DateInterval(now, tenDaysFromNow),
-																			   List.of(reservation));
+		List<LocalDate> availableDates = availabilityService.findAvailabilities(new DateInterval(now, tenDaysFromNow),
+																				List.of(reservation));
 
 		//then
 		List<LocalDate> firstChunk = now.datesUntil(reservationStart).collect(toList());
@@ -98,8 +98,8 @@ public class AvailabilityServiceTest {
 		DateInterval secondReservation = new DateInterval(secondReservationStart, secondReservationEnd);
 
 		//when
-		List<LocalDate> availableDates = availabilityService.getAvailableDates(new DateInterval(now, tenDaysFromNow),
-																			   List.of(firstReservation, secondReservation));
+		List<LocalDate> availableDates = availabilityService.findAvailabilities(new DateInterval(now, tenDaysFromNow),
+																				List.of(firstReservation, secondReservation));
 
 		//then
 		List<LocalDate> firstChunk = now.datesUntil(firstReservationStart).collect(toList());
@@ -123,8 +123,8 @@ public class AvailabilityServiceTest {
 		DateInterval reservationDates = new DateInterval(reservationStart, tenDaysFromNow);
 
 		//when
-		List<LocalDate> availableDates = availabilityService.getAvailableDates(new DateInterval(now, tenDaysFromNow),
-																			   List.of(reservationDates));
+		List<LocalDate> availableDates = availabilityService.findAvailabilities(new DateInterval(now, tenDaysFromNow),
+																				List.of(reservationDates));
 
 		//then
 		List<LocalDate> availabilityChunk = now.datesUntil(reservationStart).collect(toList());
@@ -143,8 +143,8 @@ public class AvailabilityServiceTest {
 		DateInterval reservationDates = new DateInterval(reservationStart, reservationEnd);
 
 		//when
-		List<LocalDate> availableDates = availabilityService.getAvailableDates(new DateInterval(now, tenDaysFromNow),
-																			   List.of(reservationDates));
+		List<LocalDate> availableDates = availabilityService.findAvailabilities(new DateInterval(now, tenDaysFromNow),
+																				List.of(reservationDates));
 
 		//then
 		List<LocalDate> availabilityChunk = reservationEnd.datesUntil(tenDaysFromNow).collect(toList());
@@ -164,8 +164,8 @@ public class AvailabilityServiceTest {
 		DateInterval reservationDates = new DateInterval(reservationStart, reservationEnd);
 
 		//when
-		List<LocalDate> availableDates = availabilityService.getAvailableDates(new DateInterval(now, tenDaysFromNow),
-																			   List.of(reservationDates));
+		List<LocalDate> availableDates = availabilityService.findAvailabilities(new DateInterval(now, tenDaysFromNow),
+																				List.of(reservationDates));
 
 		//then
 		List<LocalDate> availabilityChunk = now.datesUntil(reservationStart).collect(toList());
@@ -185,8 +185,8 @@ public class AvailabilityServiceTest {
 		DateInterval reservationDates = new DateInterval(reservationStart, reservationEnd);
 
 		//when
-		List<LocalDate> availableDates = availabilityService.getAvailableDates(new DateInterval(now, tenDaysFromNow),
-																			   List.of(reservationDates));
+		List<LocalDate> availableDates = availabilityService.findAvailabilities(new DateInterval(now, tenDaysFromNow),
+																				List.of(reservationDates));
 
 		//then
 		assertThat(availableDates).isEmpty();
@@ -205,8 +205,8 @@ public class AvailabilityServiceTest {
 		DateInterval reservationDates = new DateInterval(reservationStart, reservationEnd);
 
 		//when
-		List<LocalDate> availableDates = availabilityService.getAvailableDates(new DateInterval(now, tenDaysFromNow),
-																			   List.of(reservationDates));
+		List<LocalDate> availableDates = availabilityService.findAvailabilities(new DateInterval(now, tenDaysFromNow),
+																				List.of(reservationDates));
 
 		//then
 		List<LocalDate> expected = now.datesUntil(tenDaysFromNow).collect(toList());

@@ -12,7 +12,7 @@ import static java.util.stream.Collectors.toList;
 @Service
 public class AvailabilityService {
 
-	public List<LocalDate> getAvailableDates(DateInterval requestedInterval, List<DateInterval> sortedOccupiedIntervals) {
+	public List<LocalDate> findAvailabilities(DateInterval requestedInterval, List<DateInterval> sortedOccupiedIntervals) {
 
 		LocalDate currentStart = requestedInterval.getStart();
 		List<LocalDate> availableDates = new ArrayList<>();

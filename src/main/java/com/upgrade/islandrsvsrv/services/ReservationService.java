@@ -1,5 +1,6 @@
 package com.upgrade.islandrsvsrv.services;
 
+import com.upgrade.islandrsvsrv.domain.DateInterval;
 import com.upgrade.islandrsvsrv.domain.api.ReservationModification;
 import com.upgrade.islandrsvsrv.domain.api.ReservationRequest;
 import com.upgrade.islandrsvsrv.repository.ReservationDAO;
@@ -10,21 +11,17 @@ import reactor.core.publisher.Flux;
 
 import java.time.LocalDate;
 
-import static java.time.temporal.ChronoUnit.DAYS;
-import static java.util.stream.Collectors.toList;
-
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
 
 	private final ReservationDAO reservationDAO;
 
+	private final AvailabilityService availabilityService;
+
 	public Flux<LocalDate> getAvailabilities(LocalDate dateStart, LocalDate dateEnd) {
-		return Flux.fromIterable(reservationDAO.getReservationDates(dateStart, dateEnd))
-				.flatMap(dateInterval -> Flux.fromIterable(dateInterval.getStart()
-																   .datesUntil(dateInterval.getEnd().plus(1, DAYS))
-																   .collect(toList())
-				));
+		return Flux.fromIterable(availabilityService.findAvailabilities(new DateInterval(dateStart, dateEnd),
+																		reservationDAO.getReservationDates(dateStart, dateEnd)));
 	}
 
 	public Long insertReservation(ReservationRequest reservationRequest) throws DataIntegrityViolationException {

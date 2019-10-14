@@ -150,8 +150,7 @@ public class ReservationDAOTestIT {
 		Reservation actualReservation = reservationDAO.getReservation(reservationId);
 
 		assertThat(actualReservation.getDateInterval().getStart()).isEqualTo(expectedStart);
-		//exclusives dates when reserving since guests must checkout at midnight so substract 1 day from "expected"
-		assertThat(actualReservation.getDateInterval().getEnd()).isEqualTo(expectedEnd.minus(1, DAYS));
+		assertThat(actualReservation.getDateInterval().getEnd()).isEqualTo(expectedEnd);
 	}
 
 	@Test

@@ -158,7 +158,7 @@ public class ReservationControllerTestIT {
 		//then
 		Reservation actual = reservationDAO.getReservation(reservationId);
 		assertThat(actual.getDateInterval().getStart()).isEqualTo(expectedStart);
-		assertThat(actual.getDateInterval().getEnd()).isEqualTo(expectedEnd.minus(1, DAYS));
+		assertThat(actual.getDateInterval().getEnd()).isEqualTo(expectedEnd);
 	}
 
 	@Test

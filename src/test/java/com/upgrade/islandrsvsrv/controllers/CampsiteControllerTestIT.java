@@ -2,12 +2,10 @@ package com.upgrade.islandrsvsrv.controllers;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
@@ -16,8 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.io.IOException;
@@ -73,8 +69,7 @@ public class CampsiteControllerTestIT {
 					}
 
 					//then
-					assertThat(dates).containsExactlyElementsOf(tomorrow.datesUntil(tomorrow.plus(1, MONTHS)
-																							.plus(1, DAYS))
+					assertThat(dates).containsExactlyElementsOf(tomorrow.datesUntil(tomorrow.plus(1, MONTHS))
 																		.collect(toList()));
 				});
 
@@ -106,7 +101,7 @@ public class CampsiteControllerTestIT {
 
 					//then
 					assertThat(dates).containsExactlyElementsOf(
-							tomorrow.datesUntil(tenDaysFromNow.plus(1, DAYS)).collect(toList()));
+							tomorrow.datesUntil(tenDaysFromNow).collect(toList()));
 				});
 
 	}
