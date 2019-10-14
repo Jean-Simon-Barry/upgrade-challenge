@@ -1,8 +1,6 @@
 package com.upgrade.islandrsvsrv.repository;
 
 import com.upgrade.islandrsvsrv.domain.DateInterval;
-import com.upgrade.islandrsvsrv.domain.Reservation;
-import com.upgrade.islandrsvsrv.domain.api.ReservationRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,7 +8,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.support.KeyHolder;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
@@ -39,7 +36,7 @@ public class ReservationDAOTest {
 	}
 
 	@Test
-	public void returnsAvailabilities() {
+	public void testReturnsReservationDates() {
 		// given
 		LocalDate start = now();
 		LocalDate end = now().plus(10, DAYS);
@@ -47,10 +44,10 @@ public class ReservationDAOTest {
 		when(jdbcTemplate.query(any(String.class), any(RowMapper.class), any(), any())).thenReturn(List.of(Optional.of(expected)));
 
 		// when
-		Flux<DateInterval> availabilities = reservationDAO.getAvailabilities(start, end);
+		Flux<DateInterval> reservationDates = reservationDAO.getReservationDates(start, end);
 
 		// then
-		StepVerifier.create(availabilities).expectNext(expected).verifyComplete();
+		StepVerifier.create(reservationDates).expectNext(expected).verifyComplete();
 
 		verify(jdbcTemplate).query(any(String.class), any(RowMapper.class), any(), any());
 	}

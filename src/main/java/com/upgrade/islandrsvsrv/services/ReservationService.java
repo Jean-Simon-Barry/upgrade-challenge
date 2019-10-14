@@ -1,6 +1,5 @@
 package com.upgrade.islandrsvsrv.services;
 
-import com.upgrade.islandrsvsrv.domain.Reservation;
 import com.upgrade.islandrsvsrv.domain.api.ReservationModification;
 import com.upgrade.islandrsvsrv.domain.api.ReservationRequest;
 import com.upgrade.islandrsvsrv.repository.ReservationDAO;
@@ -21,7 +20,7 @@ public class ReservationService {
 	private final ReservationDAO reservationDAO;
 
 	public Flux<LocalDate> getAvailabilities(LocalDate dateStart, LocalDate dateEnd) {
-		return reservationDAO.getAvailabilities(dateStart, dateEnd)
+		return reservationDAO.getReservationDates(dateStart, dateEnd)
 				.flatMap(dateInterval -> Flux.fromIterable(dateInterval.getStart()
 																   .datesUntil(dateInterval.getEnd().plus(1, DAYS))
 																   .collect(toList())

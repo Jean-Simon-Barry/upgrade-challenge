@@ -4,7 +4,10 @@ import com.upgrade.islandrsvsrv.domain.DateInterval;
 import com.upgrade.islandrsvsrv.domain.Reservation;
 import com.upgrade.islandrsvsrv.domain.api.ReservationModification;
 import com.upgrade.islandrsvsrv.domain.api.ReservationRequest;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,12 +25,10 @@ import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.MONTHS;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasItems;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
@@ -63,27 +64,22 @@ public class ReservationDAOTestIT {
 		//given
 		LocalDate reservationStart = START_DATE_WINDOW.plus(3, DAYS);
 		LocalDate reservationEnd = reservationStart.plus(3, DAYS);
-		ReservationRequest reservation = ReservationRequest.builder()
+		ReservationRequest expectedReservation = ReservationRequest.builder()
 				.userEmail("emailhere")
 				.userName("fullnamehere")
 				.start(reservationStart)
 				.end(reservationEnd)
 				.build();
-		reservationDAO.insertReservation(reservation);
+		reservationDAO.insertReservation(expectedReservation);
 
 		// when
-		Flux<DateInterval> availabilities = reservationDAO.getAvailabilities(START_DATE_WINDOW, END_DATE_WINDOW);
+		Flux<DateInterval> reservationsDates = reservationDAO.getReservationDates(START_DATE_WINDOW, END_DATE_WINDOW);
 
 		// then
-		DateInterval expectedAvailableInterval1 = new DateInterval(START_DATE_WINDOW,
-																  reservationStart.minus(1, DAYS));
-		DateInterval expectedAvailableInterval2 = new DateInterval(reservationEnd, END_DATE_WINDOW);
+		DateInterval expected = new DateInterval(reservationStart, reservationEnd);
 
-		StepVerifier.create(availabilities)
-				.recordWith(ArrayList::new)
-				.expectNextCount(2)
-				.consumeRecordedWith(periods -> assertThat(periods).containsExactly(expectedAvailableInterval1,
-																					expectedAvailableInterval2))
+		StepVerifier.create(reservationsDates)
+				.expectNext(expected)
 				.verifyComplete();
 	}
 
