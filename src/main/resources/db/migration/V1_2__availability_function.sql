@@ -1,3 +1,7 @@
+
+-- so I had based this logic on a neat article https://info.crunchydata.com/blog/range-types-recursion-how-to-search-availability-with-postgresql
+-- HOWEVER, there is a fatal flaw in the logic of this function where, if you request availability for dates which correspond _exactly_
+-- with an existing reservation, it would return you that range as available. God bless integration tests!
 CREATE OR REPLACE FUNCTION get_available_periods(daterange)
 RETURNS TABLE(available_dates daterange)
 AS $$
