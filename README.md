@@ -23,3 +23,11 @@ All db migrations will run and the web server should be up and running at `local
 
 To run the integration tests, make sure you have docker up and running on your env and simply do a
 ```mvn install```
+
+<h3>Or, to run the app without docker</h3>
+
+First create a postgresql database `island_resort`.
+Then, run
+
+```mvn spring-boot:run -Dspring.profiles.active=dev```
+Or, in your favorite IDE simply run the `IslandRsvSrvApplication.java` again using the dev profile.
