@@ -241,4 +241,22 @@ public class ReservationControllerTest {
 
 		verify(reservationService, never()).insertReservation(any());
 	}
+
+	@Test
+	public void testStartAndEndMustDifferByAtLeastOneDay() {
+		// given
+		LocalDate startDate = now().plus(1, DAYS);
+		LocalDate endDate = startDate;
+		ReservationModification reservation = ReservationModification.builder()
+				.start(startDate)
+				.end(endDate)
+				.build();
+		expectedEx.expect(ResponseStatusException.class);
+		expectedEx.expectMessage("The start and end date must differ by at least 1 day.");
+
+		// when
+		reservationController.modifyReservation(reservation, 1L);
+
+		verify(reservationService, never()).insertReservation(any());
+	}
 }

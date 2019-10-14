@@ -16,6 +16,9 @@ public class ReservationDateValidation {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The end date cannot be in the past.");
 		} else if (!start.isAfter(now())) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The start date must be in the future.");
+		} else if (start.equals(end)) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The start and end date must differ by " +
+					"at least 1 day.");
 		}
 	}
 }

@@ -137,4 +137,18 @@ public class CampsiteControllerTest {
 		verify(reservationService, never()).getAvailabilities(any(), any());
 	}
 
+	@Test
+	public void testStartAndEndDatesMustDifferByOneDay() {
+		// given
+		LocalDate startDate = now().plus(1, DAYS);
+		LocalDate endDate = startDate;
+		expectedEx.expect(ResponseStatusException.class);
+		expectedEx.expectMessage("The start and end date must differ by at least 1 day.");
+
+		// when
+		campsiteController.getAvailabilities(startDate, endDate);
+
+		verify(reservationService, never()).getAvailabilities(any(), any());
+	}
+
 }
