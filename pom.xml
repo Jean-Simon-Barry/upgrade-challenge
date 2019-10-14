@@ -1,138 +1,139 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <artifactId>island-rsv-srv</artifactId>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>spring-boot-maven-plugin</artifactId>
         <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.1.9.RELEASE</version>
-        <relativePath/> <!-- lookup parent from repository -->
-    </parent>
-    <groupId>com.upgrade</groupId>
-    <artifactId>island-rsv-srv</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>island-rsv-srv</name>
-    <description>Service to reserve the island man!</description>
+      </plugin>
 
-    <properties>
-        <java.version>11</java.version>
-    </properties>
+      <plugin>
+        <!-- Separates the unit tests from the integration tests. -->
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <!-- Skip the default running of this plug-in (or everything is run twice...see below) -->
+          <skip>true</skip>
+          <!-- Show 100% of the lines from the stack trace (doesn't work) -->
+          <trimStackTrace>false</trimStackTrace>
+        </configuration>
+        <executions>
+          <execution>
+            <configuration>
+              <!-- Never skip running the tests when the test phase is invoked -->
+              <excludes>
+                <!-- Exclude integration tests within (unit) test phase. -->
+                <exclude>**/*IT.java</exclude>
+              </excludes>
+              <includes>
+                <!-- Include unit tests within integration-test phase. -->
+                <include>**/*Test.java</include>
+              </includes>
+              <skip>false</skip>
+            </configuration>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <id>unit-tests</id>
+            <phase>test</phase>
+          </execution>
+          <execution>
+            <configuration>
+              <!-- Never skip running the tests when the integration-test phase is invoked -->
+              <includes>
+                <!-- Include integration tests within integration-test phase. -->
+                <include>**/*IT.java</include>
+              </includes>
+              <skip>false</skip>
+            </configuration>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <id>integration-tests</id>
+            <phase>integration-test</phase>
+          </execution>
+        </executions>
+        <groupId>org.apache.maven.plugins</groupId>
+      </plugin>
+    </plugins>
+  </build>
+  <dependencies>
+    <dependency>
+      <artifactId>spring-boot-starter-jdbc</artifactId>
+      <groupId>org.springframework.boot</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>spring-boot-starter-webflux</artifactId>
+      <groupId>org.springframework.boot</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>flyway-core</artifactId>
+      <groupId>org.flywaydb</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>postgresql</artifactId>
+      <groupId>org.postgresql</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>lombok</artifactId>
+      <groupId>org.projectlombok</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+    </dependency>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jdbc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-        </dependency>
-
-        <!-- TEST DEPENDENCIES -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.projectreactor</groupId>
-            <artifactId>reactor-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.10.19</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>1.12.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>testcontainers</artifactId>
-            <version>1.12.2</version>
-            <scope>test</scope>
-        </dependency>
+    <!-- TEST DEPENDENCIES -->
+    <dependency>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <artifactId>reactor-test</artifactId>
+      <groupId>io.projectreactor</groupId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <artifactId>mockito-all</artifactId>
+      <groupId>org.mockito</groupId>
+      <scope>test</scope>
+      <version>1.10.19</version>
+    </dependency>
+    <dependency>
+      <artifactId>postgresql</artifactId>
+      <groupId>org.testcontainers</groupId>
+      <scope>test</scope>
+      <version>1.12.2</version>
+    </dependency>
+    <dependency>
+      <artifactId>testcontainers</artifactId>
+      <groupId>org.testcontainers</groupId>
+      <scope>test</scope>
+      <version>1.12.2</version>
+    </dependency>
 
 
-    </dependencies>
+  </dependencies>
+  <description>Service to reserve the island man!</description>
+  <groupId>com.upgrade</groupId>
+  <modelVersion>4.0.0</modelVersion>
+  <name>island-rsv-srv</name>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
+  <parent>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <groupId>org.springframework.boot</groupId>
+    <relativePath/>
+    <version>2.1.9.RELEASE</version> <!-- lookup parent from repository -->
+  </parent>
 
-            <plugin>
-                <!-- Separates the unit tests from the integration tests. -->
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <!-- Skip the default running of this plug-in (or everything is run twice...see below) -->
-                    <skip>true</skip>
-                    <!-- Show 100% of the lines from the stack trace (doesn't work) -->
-                    <trimStackTrace>false</trimStackTrace>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>unit-tests</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <!-- Never skip running the tests when the test phase is invoked -->
-                            <skip>false</skip>
-                            <includes>
-                                <!-- Include unit tests within integration-test phase. -->
-                                <include>**/*Test.java</include>
-                            </includes>
-                            <excludes>
-                                <!-- Exclude integration tests within (unit) test phase. -->
-                                <exclude>**/*IT.java</exclude>
-                            </excludes>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>integration-tests</id>
-                        <phase>integration-test</phase>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <!-- Never skip running the tests when the integration-test phase is invoked -->
-                            <skip>false</skip>
-                            <includes>
-                                <!-- Include integration tests within integration-test phase. -->
-                                <include>**/*IT.java</include>
-                            </includes>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+  <properties>
+    <java.version>11</java.version>
+  </properties>
+
+  <version>0.0.1-SNAPSHOT</version>
 
 
 </project>

@@ -7,21 +7,21 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
     expose:
-    - 5432
+      - 5432
     ports:
       - 5432:5432
     environment:
-         - POSTGRES_PASSWORD=upgrade
-         - POSTGRES_USER=upgrade
-         - POSTGRES_DB=island_camping
+      - POSTGRES_PASSWORD=upgrade
+      - POSTGRES_USER=upgrade
+      - POSTGRES_DB=island_camping
     restart: unless-stopped
   island-rsv-srv:
     image: island-rsv-srv:latest
     network_mode: bridge
     environment:
-         - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/island_camping?useUnicode=true&characterEncoding=utf8
-         - SPRING_DATASOURCE_USERNAME=upgrade
-         - SPRING_DATASOURCE_PASSWORD=upgrade
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/island_camping?useUnicode=true&characterEncoding=utf8
+      - SPRING_DATASOURCE_USERNAME=upgrade
+      - SPRING_DATASOURCE_PASSWORD=upgrade
     container_name: island-rsv-srv
     expose:
       - 8080

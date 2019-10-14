@@ -1,11 +1,10 @@
 package com.upgrade.islandrsvsrv.domain.api;
 
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
 
 @Data
 @Builder
@@ -13,6 +12,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class ReservationModification {
 
-	private LocalDate start;
-	private LocalDate end;
+  private LocalDate start;
+  private LocalDate end;
 }

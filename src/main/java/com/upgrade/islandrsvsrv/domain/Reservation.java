@@ -7,8 +7,8 @@ import lombok.Data;
 @Builder
 public class Reservation {
 
-	private Long id;
-	private DateInterval dateInterval;
-	private String userName;
-	private String userEmail;
+  private Long id;
+  private DateInterval dateInterval;
+  private String userName;
+  private String userEmail;
 }
