@@ -18,6 +18,7 @@ import java.time.format.DateTimeFormatter;
 
 import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
+import static java.time.temporal.ChronoUnit.MONTHS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -253,6 +254,24 @@ public class ReservationControllerTest {
 				.build();
 		expectedEx.expect(ResponseStatusException.class);
 		expectedEx.expectMessage("The start and end date must differ by at least 1 day.");
+
+		// when
+		reservationController.modifyReservation(reservation, 1L);
+
+		verify(reservationService, never()).insertReservation(any());
+	}
+
+	@Test
+	public void testThrowsExceptionIfReservationIsMadeFurtherThanOneMonth() {
+		// given
+		LocalDate startDate = now().plus(2, MONTHS);
+		LocalDate endDate = startDate.plus(1, DAYS);
+		ReservationModification reservation = ReservationModification.builder()
+				.start(startDate)
+				.end(endDate)
+				.build();
+		expectedEx.expect(ResponseStatusException.class);
+		expectedEx.expectMessage("Reservations can only be made up to 1 month in advance.");
 
 		// when
 		reservationController.modifyReservation(reservation, 1L);
