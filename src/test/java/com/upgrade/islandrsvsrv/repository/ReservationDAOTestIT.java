@@ -21,10 +21,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.PostgreSQLContainer;
-import reactor.core.publisher.Flux;
-import reactor.test.StepVerifier;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.MONTHS;
@@ -73,14 +72,12 @@ public class ReservationDAOTestIT {
 		reservationDAO.insertReservation(expectedReservation);
 
 		// when
-		Flux<DateInterval> reservationsDates = reservationDAO.getReservationDates(START_DATE_WINDOW, END_DATE_WINDOW);
+		List<DateInterval> reservationsDates = reservationDAO.getReservationDates(START_DATE_WINDOW, END_DATE_WINDOW);
 
 		// then
 		DateInterval expected = new DateInterval(reservationStart, reservationEnd);
 
-		StepVerifier.create(reservationsDates)
-				.expectNext(expected)
-				.verifyComplete();
+		assertThat(reservationsDates).containsExactly(expected);
 	}
 
 	@Test

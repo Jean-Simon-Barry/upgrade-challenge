@@ -10,7 +10,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -50,15 +49,14 @@ public class ReservationDAO {
 
 	private final JdbcTemplate jdbc;
 
-	public Flux<DateInterval> getReservationDates(LocalDate start, LocalDate end) {
-		List<DateInterval> availabilities = jdbc.query(GET_AVAILABILITIES_QUERY,
+	public List<DateInterval> getReservationDates(LocalDate start, LocalDate end) {
+		return jdbc.query(GET_AVAILABILITIES_QUERY,
 													   (rs, num) -> reservtionDatesFromResultSet(rs),
 													   Date.valueOf(start),
 													   Date.valueOf(end))
 				.stream()
 				.flatMap(Optional::stream)
 				.collect(toList());
-		return Flux.fromIterable(availabilities);
 	}
 
 	public Long insertReservation(ReservationRequest reservation) throws DataIntegrityViolationException {

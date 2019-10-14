@@ -20,11 +20,11 @@ public class ReservationService {
 	private final ReservationDAO reservationDAO;
 
 	public Flux<LocalDate> getAvailabilities(LocalDate dateStart, LocalDate dateEnd) {
-		return reservationDAO.getReservationDates(dateStart, dateEnd)
+		return Flux.fromIterable(reservationDAO.getReservationDates(dateStart, dateEnd))
 				.flatMap(dateInterval -> Flux.fromIterable(dateInterval.getStart()
 																   .datesUntil(dateInterval.getEnd().plus(1, DAYS))
 																   .collect(toList())
-						 ));
+				));
 	}
 
 	public Long insertReservation(ReservationRequest reservationRequest) throws DataIntegrityViolationException {

@@ -15,6 +15,7 @@ import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -41,7 +42,7 @@ public class ReservationServiceTest {
 		//given
 		LocalDate start = now();
 		LocalDate end = start.plus(10, DAYS);
-		when(reservationDAO.getReservationDates(start, end)).thenReturn(Flux.just(new DateInterval(start, end)));
+		when(reservationDAO.getReservationDates(start, end)).thenReturn(List.of(new DateInterval(start, end)));
 
 		//when
 		Flux<LocalDate> availabilities = reservationService.getAvailabilities(start, end);

@@ -1,16 +1,15 @@
 package com.upgrade.islandrsvsrv.services;
 
 import com.upgrade.islandrsvsrv.domain.DateInterval;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static java.time.temporal.ChronoUnit.DAYS;
 import static java.util.stream.Collectors.toList;
 
+@Service
 public class AvailabilityService {
 
 	public List<LocalDate> getAvailableDates(DateInterval requestedInterval, List<DateInterval> sortedOccupiedIntervals) {
@@ -18,7 +17,6 @@ public class AvailabilityService {
 		LocalDate currentStart = requestedInterval.getStart();
 		List<LocalDate> availableDates = new ArrayList<>();
 
-		//return start1.before(end2) && start2.before(end1);
 		List<DateInterval> filteredReservations = sortedOccupiedIntervals.stream()
 				.filter(reservation -> reservation.getStart().isBefore(requestedInterval.getEnd()) &&
 						requestedInterval.getStart().isBefore(reservation.getEnd()))
