@@ -31,7 +31,7 @@ public class ReservationDAO {
 
   private static final String GET_AVAILABILITIES_QUERY =
       "SELECT reservation_dates from camping_reservation where " +
-          "reservation_dates && daterange(?, ?, '[]')";
+          "reservation_dates && daterange(?, ?, '[]') ORDER BY reservation_dates";
 
   private static final String INSERT_RESERVATION = "INSERT INTO camping_reservation(user_name, " +
       "user_email, reservation_dates) VALUES (?, ?, daterange(?, ?));";

@@ -54,7 +54,7 @@ public class ReservationDAOTestIT {
   }
 
   @Test
-  public void testReturnsAvailabilityPeriods() {
+  public void testReturnsReservationDates() {
 
     //given
     LocalDate reservationStart = START_DATE_WINDOW.plus(3, DAYS);
@@ -74,7 +74,7 @@ public class ReservationDAOTestIT {
     // then
     DateInterval expected = new DateInterval(reservationStart, reservationEnd);
 
-    assertThat(reservationsDates).containsExactly(expected);
+    assertThat(reservationsDates).contains(expected);
   }
 
   @Test
@@ -169,6 +169,47 @@ public class ReservationDAOTestIT {
 
     //then
     reservationDAO.getReservation(reservationId);
+  }
+
+  @Test
+  public void testReturnsReservationDatesInOrder() {
+
+    //given
+    LocalDate firstReservationStart = START_DATE_WINDOW.plus(1, DAYS);
+    LocalDate firstReservationEnd = firstReservationStart.plus(1, DAYS);
+
+    LocalDate secondReservationStart = START_DATE_WINDOW.plus(2, DAYS);
+    LocalDate secondReservationEnd = secondReservationStart.plus(1, DAYS);
+
+    ReservationRequest firstReservation = ReservationRequest.builder()
+        .userEmail("emailhere")
+        .userName("fullnamehere")
+        .start(firstReservationStart)
+        .end(firstReservationEnd)
+        .build();
+
+    ReservationRequest secondReservation = ReservationRequest.builder()
+        .userEmail("emailhere")
+        .userName("fullnamehere")
+        .start(secondReservationStart)
+        .end(secondReservationEnd)
+        .build();
+
+    reservationDAO.insertReservation(secondReservation);
+    reservationDAO.insertReservation(firstReservation);
+
+    // when
+    List<DateInterval> reservationsDates = reservationDAO
+        .getReservationDates(START_DATE_WINDOW, END_DATE_WINDOW);
+
+    // then
+    DateInterval expectedFirstReservation = new DateInterval(firstReservationStart,
+        firstReservationEnd);
+    DateInterval expectedSecondReservation = new DateInterval(secondReservationStart,
+        secondReservationEnd);
+
+    assertThat(reservationsDates).containsExactly(expectedFirstReservation,
+        expectedSecondReservation);
   }
 
   static class Initializer
